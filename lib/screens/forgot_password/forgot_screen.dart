@@ -1,5 +1,3 @@
-import 'package:app/screens/signin_page/signin_screen.dart';
-import 'package:app/screens/signup_page/signup_screen2.dart';
 import 'package:app/widgets/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
