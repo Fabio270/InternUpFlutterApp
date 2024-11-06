@@ -1,5 +1,7 @@
+import 'package:app/main_page.dart';
 import 'package:app/screens/forgot_password/forgot_screen.dart';
 import 'package:app/screens/signup_page/signup_screen.dart';
+import 'package:app/screens/signup_page/signup_screen2.dart';
 import 'package:app/widgets/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -90,11 +92,11 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 55,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //       builder: (context) => SignUpScren2,
-                            //     ));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SignUpScreen2(),
+                                ));
                           },
                           style: ButtonStyle(
                               backgroundColor:
@@ -283,12 +285,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       SizedBox(height: 20),
                       InkWell(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ForgotScreen()
-                              )
-                            );
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotScreen()));
                         },
                         child: Text(
                           "Forgot Password?",
@@ -303,7 +300,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: double.infinity,
                         height: 55,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MainPage()));
+                          },
                           style: ButtonStyle(
                               backgroundColor:
                                   WidgetStateProperty.all(kPrimaryColor),
