@@ -24,39 +24,40 @@ class CustomAppbar extends StatelessWidget {
                   height: 35,
                   width: 35,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(200),
-                    image: DecorationImage(image: 
-                    AssetImage(
-                      "assets/profile1.jpg",
-
-                    ),
-                    fit: BoxFit.cover,
-                    )
-                  ),
+                      borderRadius: BorderRadius.circular(200),
+                      image: DecorationImage(
+                        image: AssetImage(
+                          "assets/profile1.jpg",
+                        ),
+                        fit: BoxFit.cover,
+                      )),
                 ),
-              ),
-              Container(
-                height: 40,
-                width: sizingInformation!.screenSize.width / 1.40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: Color(0xFFEEF3F7),
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Search",
-                    border: InputBorder.none,
-                    prefixIcon: Icon(Icons.search,
-                    color: Color(0xFF666666),),
-                  ),
-                ),
-              ),
-              Icon(FontAwesomeIcons.solidCommentDots,
-              color: Color(0xFF666666),
-              size: 25,
               ),
             ],
-          )
+          ),
+          Container(
+            height: 40,
+            width: sizingInformation!.screenSize.width / 1.40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: Color(0xFFEEF3F7),
+            ),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: "Search",
+                border: InputBorder.none,
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Color(0xFF666666),
+                ),
+              ),
+            ),
+          ),
+          Icon(
+            FontAwesomeIcons.solidCommentDots,
+            color: Color(0xFF666666),
+            size: 25,
+          ),
         ],
       ),
     );

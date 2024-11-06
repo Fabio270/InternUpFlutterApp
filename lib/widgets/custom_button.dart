@@ -26,5 +26,5 @@ Widget columnSingleButton({
         ),)
       ],
     ),
-  )
+  );
 }
