@@ -1,68 +1,39 @@
-
-import 'package:app/model/user_model.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:app/model/user_post_model.dart';
 
 class Data {
-  static final List<UserPostModel> postList = [
-    UserPostModel(
-        name: "User 1",
-        profileUrl: "assets/profile1.jpg",
-        headline: "HR Executive ",
-        tags:
-            "#positivity #motivation #learning #progress #development #networking #business #jobhunters #jobseekers #connections #networking #linkedin #nevergiveup #staypositive #staystrong #positiveattitude",
-        description:
-            "Stay Strong!\n\nKeep Your Head Up!\n\nRejection means a better opportunity awaits you elsewhere.\n\nYour thoughts?",
-        isVideoPost: false,
-        comments: "100",
-        video: "",
-        isOnline: false,
-        image: "assets/post1.jpg",
-        likes: "800"),
-    UserPostModel(
-        name: "User 2",
-        profileUrl: "assets/profile2.jpg",
-        headline: "MEAN Stack Developer | Freelancer",
-        tags: "#meanstack",
-        description:
-            "MEAN is a source-available JavaScript software stack for building dynamic web sites and web applications. A variation known as MERN replaces Angular with React.js front-end, and another named MEVN use Vue.js as front-end.",
-        isVideoPost: false,
-        comments: "1k",
-        video: "",
-        isOnline: true,
-        image: "assets/post2.jpeg",
-        likes: "20k"),
-    UserPostModel(
-        name: "User 3",
-        profileUrl: "assets/profile3.jpg",
-        headline: "Logo Designer | Freelancer |",
-        tags: "#datascience #machinelearning #programming #python #joke",
-        description: "Google, Stack Overflow are your saviors :)",
-        isVideoPost: false,
-        comments: "100",
-        video: "",
-        isOnline: true,
-        image: "assets/post3.png",
-        likes: "230"),
-    UserPostModel(
-        name: "User 4",
-        profileUrl: "assets/profile6.jpg",
-        headline: "Flutter Open Projects | Flutter Drat world",
-        tags:
-            "#FlutterOpenProject, #FlutterMagicWorld, #Mobile&WebOpenApps, #Flutter+Dart❤️",
-        description:
-            "Flutter is an open-source mobile application development framework created by Google. It is used to develop applications for Android and iOS, as well as being the primary method of creating applications for Google Fuchsia.",
-        isVideoPost: false,
-        comments: "20k",
-        video: "",
-        isOnline: true,
-        image: "assets/post4.png",
-        likes: "101k"),
-  ];
-  static final userProfile = UserModel(
-      headline:
-          "Android & IOS Mobile Application flutter developer | Freelancer",
-      profileUrl: "assets/profile.jpg",
-      name: "Dear Programmer",
-      connections: "1,837",
-      viewProfile: "300");
+  static Future<List<UserPostModel>> fetchPosts() async {
+    final url = Uri.parse("https://internup.com.br/api/positions?search=developer&location=Old+Toronto%2C+Ontario");
+
+    // Cria um HttpClient que ignora a validação SSL
+    final httpClient = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+
+    // Cria um IOClient usando o HttpClient personalizado
+    final IOClient client = IOClient(httpClient);
+
+    try {
+      // Faz a requisição
+      final response = await client.get(url);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        
+        // A chave "data" contém a lista de posts
+        final List<dynamic> jsonList = jsonResponse['results'] as List<dynamic>;
+
+        return jsonList
+            .map((json) => UserPostModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception("Failed to load posts: ${response.statusCode}");
+      }
+    } finally {
+      // Fecha o cliente para liberar recursos
+      client.close();
+    }
+  }
 }

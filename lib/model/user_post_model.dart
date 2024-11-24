@@ -1,27 +1,53 @@
 class UserPostModel {
-  final String? profileUrl;
-  final String? name;
-  final String? headline;
-  final bool? isVideoPost;
+  final String? id;
+  final String? title;
   final String? description;
-  final String? video;
-  final String? image;
-  final String? comments;
-  final String? likes;
-  final String? tags;
-  final bool? isOnline;
+  final String? companyName;
+  final String? location;
+  final String? category;
+  final String? sourceUrl;
+  final String? datePosted;
+  final String? logoPhotoUrl;
 
   UserPostModel({
-      this.profileUrl,
-      this.name,
-      this.headline,
-      this.isVideoPost,
-      this.description,
-      this.video,
-      this.image,
-      this.comments,
-      this.likes,
-      this.tags,
-      this.isOnline
-      });
+    this.id,
+    this.title,
+    this.description,
+    this.companyName,
+    this.location,
+    this.category,
+    this.sourceUrl,
+    this.datePosted,
+    this.logoPhotoUrl,
+  });
+
+  factory UserPostModel.fromJson(Map<String, dynamic> json) {
+    return UserPostModel(
+      id: json['_id'] as String?,
+      title: json['title'] as String?,
+      description: json['description'] as String?,
+      companyName: json['companyName'] as String?,
+      location: json['location'] as String?,
+      category: json['category'] as String?,
+      sourceUrl: json['source_url'] as String?,
+      datePosted: json['date_posted'] as String?,
+      logoPhotoUrl: json['company']?['logo_photo_url'] as String?,
+    );
+  }
+}
+
+class JobPostsResponse {
+  final int? total;
+  final List<UserPostModel>? results;
+
+  JobPostsResponse({this.total, this.results});
+
+  factory JobPostsResponse.fromJson(Map<String, dynamic> json) {
+    return JobPostsResponse(
+      total: json['total'] as int?,
+      results: (json['results'] as List<dynamic>?)
+          ?.map((post) => UserPostModel.fromJson(post as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 }

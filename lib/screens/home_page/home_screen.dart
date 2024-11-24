@@ -1,10 +1,11 @@
 import 'package:app/data/data.dart';
+import 'package:app/model/user_post_model.dart';
 import 'package:app/widgets/constants.dart';
 import 'package:app/widgets/custom_appbar.dart';
-import 'package:app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+
+import 'post_detail_screen.dart'; // Import the detail screen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,259 +15,149 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _post = Data.postList;
-  bool _showAppNavBar = true;
-  late ScrollController _scrollController;
-  bool _isScrollDown = false;
+  late Future<List<UserPostModel>> _futurePosts;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
-    _initialScroll();
-  }
-
-  void _initialScroll() async {
-    _scrollController.addListener(() {
-      if (_scrollController.position.userScrollDirection ==
-          ScrollDirection.reverse) {
-        if (!_isScrollDown) {
-          _isScrollDown = true;
-          _hideAppNavBar();
-        }
-      }
-      if (_scrollController.position.userScrollDirection ==
-          ScrollDirection.forward) {
-        if (!_isScrollDown) {
-          _isScrollDown = false;
-          _showAppNavvBar();
-          setState(() {});
-        }
-      }
-    });
-  }
-
-  void _hideAppNavBar() {
-    setState(() {
-      _showAppNavBar = false;
-    });
-  }
-
-  void _showAppNavvBar() {
-    setState(() {
-      _showAppNavBar = true;
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+    _futurePosts = Data.fetchPosts(); // Chamada ao método assíncrono.
   }
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
-        return Container(
-          color: Colors.black12,
-          child: Column(
-            children: [
-              _showAppNavBar
-                  ? CustomAppbar(
-                      sizingInformation: sizingInformation,
-                    )
-                  : Container(
-                      height: 0,
-                      width: 0,
-                    ),
-              _listPostWidget(sizingInformation),
-            ],
+        return Scaffold(
+          backgroundColor: Colors.black12,
+          appBar: CustomAppbar(sizingInformation: sizingInformation),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: FutureBuilder<List<UserPostModel>>(
+              future: _futurePosts,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Erro ao carregar posts: ${snapshot.error}'),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Text('Nenhum post encontrado'),
+                  );
+                } else {
+                  return _listPostWidget(sizingInformation, snapshot.data!);
+                }
+              },
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _listPostWidget(SizingInformation sizingInformation) {
-    return Expanded(
-        child: MediaQuery.removePadding(
-            context: context,
-            removeTop: true,
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: _post.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-                  margin: EdgeInsets.only(bottom: 0, top: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                        top: BorderSide(color: Colors.black54, width: 0.50),
-                        bottom: BorderSide(
-                          color: Colors.black54,
-                          width: 0.50,
-                        )),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                    image: AssetImage(
-                                      _post[index].profileUrl!,
-                                    ),
-                                    fit: BoxFit.cover)),
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _post[index].name!,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Container(
-                                width:
-                                    sizingInformation.screenSize.width / 1.34,
-                                child: Text(
-                                  _post[index].headline!,
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 12,
-                                    color: Colors.black12,
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        _post[index].description!,
-                        style: TextStyle(fontSize: 14),
-                      ),
-                      SizedBox(height: 5),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          _post[index].tags!,
-                          style: TextStyle(color: kPrimaryColor),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Container(
-                        width: sizingInformation.screenSize.width,
-                        child: Image.asset(
-                          _post[index].image!,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 25,
-                                  height: 25,
-                                  child:
-                                      Image.asset("assets/icons/like_icon.png"),
-                                ),
-                                Container(
-                                  width: 25,
-                                  height: 25,
-                                  child: Image.asset(
-                                      "assets/icons/celebrate_icon.png"),
-                                ),
-                                if (index == 0 || index == 4)
-                                  Container(
-                                    width: 25,
-                                    height: 25,
-                                    child: Image.asset(
-                                        "assets/icons/love_icon.png"),
-                                  ),
-                                SizedBox(width: 5),
-                                Text(
-                                  _post[index].likes!,
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            child: Row(
-                              children: [
-                                Text(_post[index].comments!,),
-                                Text(" comments"),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      Divider(thickness: 0.50,
-                      color: Colors.black26
-                      ),
-                      _rowButtons(),
-                    ],
-                  ),
-                );
-              },
-            )));
+  Widget _listPostWidget(
+      SizingInformation sizingInformation, List<UserPostModel> posts) {
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: ListView.builder(
+        itemCount: posts.length,
+        itemBuilder: (context, index) {
+          final post = posts[index];
+          return PostWidget(post: post, sizingInformation: sizingInformation);
+        },
+      ),
+    );
   }
+}
 
-  Widget _rowButtons(){
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          InkWell(
-            onTap: (){},
-            child: columnSingleButton(
-              color: Color(0xFF666666),
-              name: "Like",
-              iconImage: "assets/icons/like_icon_white.png",
-            ),
+class PostWidget extends StatelessWidget {
+  final UserPostModel post;
+  final SizingInformation sizingInformation;
+
+  const PostWidget(
+      {required this.post, required this.sizingInformation, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Navigate to the post detail page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PostDetailScreen(post: post),
           ),
-          InkWell(
-            onTap: (){},
-            child: columnSingleButton(
-              color: Color(0xFF666666),
-              name: "Comment",
-              iconImage: "assets/icons/comment-bubble-icon.png",
-            ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+        margin: const EdgeInsets.only(bottom: 8, top: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(color: Colors.black54, width: 0.50),
+            bottom: BorderSide(color: Colors.black54, width: 0.50),
           ),
-          InkWell(
-            onTap: (){},
-            child: columnSingleButton(
-              color: Color(0xFF666666),
-              name: "Repost",
-              iconImage: "assets/icons/repost.png",
+        ),
+        child: Column(
+          children: [
+            // Title
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Container(
+                    width: sizingInformation.screenSize.width,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: Colors.black, width: 2.0),
+                      ),
+                    ),
+                    // Use Expanded to make sure the title takes up available space
+                    child: Text(
+                      post.title ?? 'Título indisponível',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          InkWell(
-            onTap: (){},
-            child: columnSingleButton(
-              color: Color(0xFF666666),
-              name: "Send",
-              iconImage: "assets/icons/send-icon.png",
+            const SizedBox(height: 10),
+            // Description
+            Text(
+              post.description ?? 'Descrição indisponível',
+              maxLines: 3, // Limit the number of lines
+              overflow: TextOverflow.ellipsis, // Show ellipsis when truncated
+              style: const TextStyle(fontSize: 14),
             ),
-          ),
-        ],
+            const SizedBox(height: 5),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                post.category ?? '',
+                style: const TextStyle(color: kPrimaryColor),
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Logo Photo
+            if (post.logoPhotoUrl != null)
+              Container(
+                width: sizingInformation.screenSize.width / 2,
+                child: Image.network(
+                  post.logoPhotoUrl!,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

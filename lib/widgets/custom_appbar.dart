@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class CustomAppbar extends StatelessWidget {
+class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
   final SizingInformation? sizingInformation;
 
   const CustomAppbar({super.key, this.sizingInformation});
@@ -62,4 +62,7 @@ class CustomAppbar extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  Size get preferredSize => Size.fromHeight(sizingInformation!.screenSize.height * 0.08);
 }
